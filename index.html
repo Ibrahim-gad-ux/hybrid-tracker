@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hybrid Tracker — S&C Coaching</title>
+<style>
+  :root{
+    --black:#0d0d0d; --b2:#161616; --b3:#1f1f1f; --b4:#272727;
+    --gold:#c9a227; --gold-l:#e8d48a; --grey:#8a8a8a; --line:#2e2e2e;
+    --green:#3ea35e; --red:#c05050; --blue:#5b8fc7;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;background:var(--black);}
+  body{font-family:'Helvetica Neue',Arial,sans-serif;color:#eee;
+       padding:22px 16px 70px;min-height:100vh;}
+  .brand{font-size:11px;letter-spacing:3px;color:var(--gold);font-weight:700;text-transform:uppercase;}
+  h1{font-size:20px;font-weight:800;letter-spacing:.5px;margin:2px 0 2px;text-transform:uppercase;}
+  .sub{color:var(--grey);font-size:12px;}
+  .top{border-bottom:2px solid var(--gold);padding-bottom:13px;margin-bottom:18px;}
+
+  .sel{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+  .fld{flex:1;min-width:130px;}
+  label{display:block;font-size:10px;letter-spacing:1.2px;text-transform:uppercase;
+        color:var(--gold-l);margin-bottom:5px;font-weight:700;}
+  select,input,textarea{width:100%;background:var(--b2);border:1px solid #3a3a3a;color:#fff;
+    padding:10px 11px;border-radius:3px;font-size:16px;font-family:inherit;}
+  select:focus,input:focus,textarea:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+
+  .card{background:var(--b2);border:1px solid #2c2c2c;border-left:4px solid var(--gold);
+        padding:16px;margin-bottom:18px;border-radius:3px;}
+  .card.rx{border-left-color:var(--blue);}
+  .chead{display:flex;justify-content:space-between;align-items:center;gap:8px;
+         margin-bottom:12px;flex-wrap:wrap;}
+  .chead h2{margin:0;font-size:13px;letter-spacing:.6px;text-transform:uppercase;}
+  .badge{font-size:10px;letter-spacing:1px;color:var(--black);background:var(--gold);
+         padding:4px 9px;border-radius:20px;font-weight:800;text-transform:uppercase;}
+  .badge.alt{background:var(--blue);color:#fff;}
+
+  .rx-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;}
+  .rx-item{background:var(--b3);padding:10px 12px;border-radius:3px;border-left:2px solid var(--blue);}
+  .rx-k{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--grey);font-weight:700;}
+  .rx-v{font-size:14px;font-weight:700;margin-top:3px;color:#fff;}
+  .rx-n{font-size:11px;color:var(--gold-l);margin-top:3px;}
+
+  .grp{margin-bottom:18px;}
+  .grp-h{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--gold-l);
+         font-weight:700;margin-bottom:4px;}
+  .grp-rx{font-size:11px;color:var(--grey);margin-bottom:8px;}
+  .srow{display:flex;gap:8px;align-items:flex-end;margin-bottom:7px;
+        background:var(--b3);padding:8px;border-radius:3px;}
+  .srow .n{width:38px;color:var(--gold);font-weight:800;font-size:11px;
+           flex-shrink:0;padding-bottom:11px;text-align:center;line-height:1.2;}
+  .srow .ins{display:flex;gap:7px;flex:1;}
+  .srow .ins>div{flex:1;min-width:0;}
+  .srow .ins label{font-size:9px;margin-bottom:3px;}
+  .rm{background:none;border:none;color:var(--grey);cursor:pointer;font-size:20px;
+      line-height:1;padding:0 3px 8px;flex-shrink:0;}
+  .rm:hover{color:var(--red);}
+  .add{background:none;border:1px dashed #444;color:var(--gold-l);cursor:pointer;
+       padding:9px;font-size:11px;border-radius:3px;width:100%;
+       letter-spacing:.6px;text-transform:uppercase;font-weight:700;}
+  .add:hover{border-color:var(--gold);color:var(--gold);}
+
+  .rnd-h{font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold);
+         font-weight:800;margin:12px 0 6px;padding-top:8px;border-top:1px solid var(--line);}
+  .rnd-h:first-child{border-top:none;padding-top:0;margin-top:0;}
+
+  .acts{display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap;}
+  button.go{background:var(--gold);color:var(--black);border:none;font-weight:800;
+    letter-spacing:1px;text-transform:uppercase;padding:13px 24px;border-radius:3px;
+    cursor:pointer;font-size:13px;}
+  button.go:hover{background:var(--gold-l);}
+  button.go:disabled{opacity:.5;cursor:default;}
+  button.ghost{background:none;border:1px solid #444;color:var(--gold-l);cursor:pointer;
+    padding:12px 18px;font-size:12px;border-radius:3px;letter-spacing:.6px;
+    text-transform:uppercase;font-weight:700;}
+  .msg{font-size:12px;color:var(--green);}
+  .msg.err{color:var(--red);}
+  .msg.mut{color:var(--grey);}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{padding:8px 7px;text-align:left;border-bottom:1px solid #2a2a2a;}
+  th{color:var(--gold-l);font-size:9px;letter-spacing:.8px;text-transform:uppercase;font-weight:700;}
+  tr:hover td{background:#1c1c1c;}
+  .up{color:var(--green);font-weight:700;}
+  .down{color:var(--red);font-weight:700;}
+  .mut{color:var(--grey);}
+  .empty{color:var(--grey);font-size:13px;padding:12px 0;}
+  .del{background:none;border:none;color:var(--grey);cursor:pointer;font-size:11px;text-decoration:underline;}
+  .del:hover{color:var(--red);}
+  .ta{text-align:right;}
+  @media (max-width:480px){
+    .srow .ins{flex-direction:column;}
+    .srow{align-items:stretch;}
+    .srow .n{text-align:left;padding:0 0 4px 2px;width:auto;}
+    table{font-size:11.5px;} th,td{padding:7px 4px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="brand">S&amp;C Coaching</div>
+  <h1>Hybrid Tracker</h1>
+  <div class="sub">Rugby + Hyrox · 9-week in-season block</div>
+</div>
+
+<div class="sel">
+  <div class="fld">
+    <label for="wk">Week</label>
+    <select id="wk"></select>
+  </div>
+  <div class="fld" style="flex:2;">
+    <label for="dy">Session</label>
+    <select id="dy"></select>
+  </div>
+</div>
+
+<div class="card rx">
+  <div class="chead">
+    <h2>Prescribed this week</h2>
+    <span class="badge alt" id="phaseBadge">—</span>
+  </div>
+  <div class="rx-grid" id="rxGrid"></div>
+</div>
+
+<div class="card">
+  <div class="chead">
+    <h2 id="ttl">—</h2>
+    <span class="badge" id="wkBadge">Week 1</span>
+  </div>
+  <div id="groups"></div>
+  <div style="margin-top:12px;">
+    <label for="note">Notes (optional)</label>
+    <textarea id="note" rows="2" placeholder="How it felt, hip check, anything to remember..."></textarea>
+  </div>
+  <div class="acts">
+    <button class="go" id="save">Save Entry</button>
+    <span class="msg" id="msg"></span>
+  </div>
+</div>
+
+<div class="card">
+  <div class="chead"><h2 id="histTtl">History</h2></div>
+  <div id="hist"><div class="empty">Loading…</div></div>
+</div>
+
+<div class="card">
+  <div class="chead"><h2>Backup</h2></div>
+  <div class="sub" style="margin-bottom:10px;">Your data lives in Firestore and syncs across devices. This is a belt-and-braces copy.</div>
+  <div class="acts">
+    <button class="ghost" id="exp">Show All Data</button>
+    <span class="msg" id="expMsg"></span>
+  </div>
+  <textarea id="expBox" rows="6" style="margin-top:10px;display:none;font-family:monospace;font-size:11px;" readonly></textarea>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, query, where, getDocs }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB0i3HK3EVLDjuXmtTiPYno9KSfqAG7Ids",
+  authDomain: "hyrox-tracker--ibrahim-gad.firebaseapp.com",
+  projectId: "hyrox-tracker--ibrahim-gad",
+  storageBucket: "hyrox-tracker--ibrahim-gad.firebasestorage.app",
+  messagingSenderId: "962515757926",
+  appId: "1:962515757926:web:389d8bef8c6dd42bebb6a7"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const id  = k => k.replace(/[:/.#$\[\]]/g,'__');
+
+window.store = {
+  async get(k){ const s=await getDoc(doc(db,'entries',id(k)));
+    if(!s.exists()) return null; return s.data().value; },
+  async set(k,v){ await setDoc(doc(db,'entries',id(k)),{key:k,value:v,updatedAt:Date.now()}); return true; },
+  async del(k){ await deleteDoc(doc(db,'entries',id(k))); return true; },
+  async list(p){ const q=query(collection(db,'entries'),where('key','>=',p),where('key','<=',p+''));
+    const s=await getDocs(q); return s.docs.map(d=>d.data().key); }
+};
+window.dbReady = true;
+document.dispatchEvent(new Event('dbready'));
+</script>
+
+<script>
+// ===================== PROGRAM PRESCRIPTION (from the v3 block) =====================
+const REF = { squat:165, bench:140, clean:110 };
+const PCT = {
+  squat: {1:[65,3,'10'],2:[67.5,3,'9'],3:[70,3,'8'],4:[75,3,'6'],5:[80,4,'5'],
+          6:[82.5,4,'5'],7:[85,3,'3'],8:[87.5,3,'3'],9:[70,2,'3']},
+  bench: {1:[65,3,'10'],2:[67.5,3,'9'],3:[70,3,'8'],4:[75,3,'6'],5:[80,4,'5'],
+          6:[82.5,4,'5'],7:[85,3,'3'],8:[87.5,3,'3'],9:[70,2,'3']},
+  clean: {1:[70,4,'3'],2:[72.5,4,'3'],3:[75,4,'3'],4:[77.5,4,'2'],5:[80,4,'2'],
+          6:[82.5,5,'2'],7:[85,4,'2'],8:[87.5,4,'2'],9:[70,3,'2']}
+};
+const RPE = {1:'RPE 7',2:'RPE 7-8',3:'RPE 8',4:'RPE 8',5:'RPE 8',6:'RPE 8-9',
+             7:'RPE 8-9',8:'RPE 9',9:'RPE 6 — speed only'};
+// Weighted chin-up (ACC_PULL)
+const CHIN = {1:[3,'6','RPE 7 — BW or light'],2:[3,'8','RPE 7'],3:[3,'10','RPE 7-8'],
+              4:[4,'6','RPE 8 — add weight'],5:[4,'8','RPE 8'],6:[4,'8','RPE 8-9'],
+              7:[3,'6','RPE 8 — add weight'],8:[3,'5','RPE 8'],9:[2,'6','RPE 6']};
+// Trap-bar deadlift (ACC_PC, reps fixed at 5 from wk7)
+const TRAP = {1:[2,'10'],2:[3,'10'],3:[3,'12'],4:[3,'10'],5:[3,'10'],
+              6:[3,'12'],7:[3,'5'],8:[2,'5'],9:[2,'5']};
+// 400m
+const RUN = {1:[5,'1:58','2:30'],2:[5,'1:56','2:30'],3:[6,'1:55','2:30'],
+             4:[6,'1:52','2:15'],5:[6,'1:50','2:00'],6:[5,'1:48','2:00'],
+             7:[5,'1:46','2:45'],8:[4,'1:44','3:00'],9:[3,'1:52','full']};
+// Hyrox block — stations vary by week
+const HYROX = {
+ 1:{r:3,type:'STATIONS',rest:'90s',st:['Row 250m','15 Wall Balls','10 Burpee Broad Jumps']},
+ 2:{r:3,type:'STATIONS',rest:'90s',st:['Row 250m','18 Wall Balls','12 Burpee Broad Jumps']},
+ 3:{r:3,type:'COMPROMISED RUN',rest:'90s',st:['400m Run','18 Wall Balls','12 Burpee Broad Jumps']},
+ 4:{r:4,type:'STATIONS',rest:'75s',st:['Row 250m','20 Wall Balls','12 BBJ','20m Sled Push']},
+ 5:{r:4,type:'STATIONS',rest:'75s',st:['Row 250m','20 Wall Balls','15 BBJ','20m Sled Push']},
+ 6:{r:4,type:'COMPROMISED RUN',rest:'75s',st:['400m Run','20 Wall Balls','15 Burpee Broad Jumps']},
+ 7:{r:3,type:'RACE PACE',rest:'2 min',st:['Row 250m','20 Wall Balls','15 BBJ']},
+ 8:{r:2,type:'RACE PACE RUN',rest:'3 min',st:['400m Run','20 Wall Balls','15 Burpee Broad Jumps']},
+ 9:{r:1,type:'PRIMER',rest:'—',st:['Row 250m','10 Wall Balls','5 Burpee Broad Jumps']}
+};
+const PHASE = {1:'Re-base',2:'Re-base',3:'Re-base',4:'Strength-Speed',5:'Strength-Speed',
+               6:'Strength-Speed',7:'Expression',8:'Expression',9:'Taper'};
+
+const kg = (p,r)=>Math.round(p/100*r);
+
+// ===================== SESSION DEFINITIONS =====================
+const DAYS = {
+  d1:{ label:'Day 1 — Lower (Clean + Squat)',
+    groups:[
+      {key:'clean', name:'Hang Power Clean', kind:'lift',
+       rx:w=>{const[p,s,r]=PCT.clean[w];return{sets:s,txt:`${s} x ${r} @ ${p}% (${kg(p,REF.clean)}kg) · ${RPE[w]}`};},
+       fields:[{k:'weight',l:'Weight (kg)'},{k:'reps',l:'Reps'}]},
+      {key:'squat', name:'Back Squat', kind:'lift',
+       rx:w=>{const[p,s,r]=PCT.squat[w];return{sets:s,txt:`${s} x ${r} @ ${p}% (${kg(p,REF.squat)}kg) · ${RPE[w]}`};},
+       fields:[{k:'weight',l:'Weight (kg)'},{k:'reps',l:'Reps'}]}
+    ]},
+  d2:{ label:'Day 2 — Upper (Bench + Chin-Up)',
+    groups:[
+      {key:'bench', name:'Bench Press', kind:'lift',
+       rx:w=>{const[p,s,r]=PCT.bench[w];return{sets:s,txt:`${s} x ${r} @ ${p}% (${kg(p,REF.bench)}kg) · ${RPE[w]}`};},
+       fields:[{k:'weight',l:'Weight (kg)'},{k:'reps',l:'Reps'}]},
+      {key:'chin', name:'Weighted Chin-Up', kind:'lift',
+       rx:w=>{const[s,r,n]=CHIN[w];return{sets:s,txt:`${s} x ${r} · ${n}`};},
+       fields:[{k:'weight',l:'Added kg (0 = BW)'},{k:'reps',l:'Reps'}]}
+    ]},
+  d3:{ label:'Day 3 — Running (400m)',
+    groups:[
+      {key:'r400', name:'400m Repeats', kind:'time', unitLabel:'Rep',
+       rx:w=>{const[n,t,rest]=RUN[w];return{sets:n,txt:`${n} x 400m · target ${t} · rest ${rest}`};},
+       fields:[{k:'min',l:'Min'},{k:'sec',l:'Sec'}]}
+    ]},
+  d4:{ label:'Day 4 — Trap Bar + Hyrox',
+    groups:[
+      {key:'trap', name:'Trap-Bar Deadlift', kind:'lift',
+       rx:w=>{const[s,r]=TRAP[w];return{sets:s,txt:`${s} x ${r} · RPE 7-8 (never above 8 in-season)`};},
+       fields:[{k:'weight',l:'Weight (kg)'},{k:'reps',l:'Reps'}]},
+      {key:'hyrox', name:'Hyrox Block — time each station', kind:'hyrox',
+       rx:w=>{const h=HYROX[w];return{sets:h.r,txt:`${h.r} round(s) · ${h.type} · rest ${h.rest}`};},
+       fields:[{k:'min',l:'Min'},{k:'sec',l:'Sec'}]}
+    ]}
+};
+
+const N_WEEKS = 9;
+const $ = i => document.getElementById(i);
+const wkSel=$('wk'), dySel=$('dy'), groupsEl=$('groups'), noteEl=$('note'),
+      msgEl=$('msg'), histEl=$('hist'), ttlEl=$('ttl'), wkBadge=$('wkBadge'),
+      rxGrid=$('rxGrid'), phaseBadge=$('phaseBadge'), histTtl=$('histTtl');
+
+for(let w=1;w<=N_WEEKS;w++){
+  const o=document.createElement('option'); o.value=w; o.textContent='Week '+w; wkSel.appendChild(o);
+}
+Object.keys(DAYS).forEach(k=>{
+  const o=document.createElement('option'); o.value=k; o.textContent=DAYS[k].label; dySel.appendChild(o);
+});
+
+const KEY = (d,w)=>`hyrox:v3:${d}:week${w}`;
+const fmt = s => (s==null||isNaN(s)||s<=0)?'—':`${Math.floor(s/60)}:${String(Math.round(s%60)).padStart(2,'0')}`;
+
+// ---------- Prescribed panel ----------
+function renderRx(){
+  const w=+wkSel.value, d=dySel.value;
+  phaseBadge.textContent = PHASE[w];
+  rxGrid.innerHTML='';
+  DAYS[d].groups.forEach(g=>{
+    const r=g.rx(w);
+    const div=document.createElement('div'); div.className='rx-item';
+    div.innerHTML=`<div class="rx-k">${g.name}</div><div class="rx-v">${r.txt}</div>`;
+    if(g.kind==='hyrox'){
+      div.innerHTML += `<div class="rx-n">${HYROX[w].st.join('  →  ')}</div>`;
+    }
+    rxGrid.appendChild(div);
+  });
+}
+
+// ---------- Set rows ----------
+function mkRow(g,label,vals){
+  const row=document.createElement('div'); row.className='srow';
+  const n=document.createElement('div'); n.className='n'; n.textContent=label; row.appendChild(n);
+  const ins=document.createElement('div'); ins.className='ins';
+  let v=vals;
+  if((g.kind==='time'||g.kind==='hyrox') && vals && vals.t!=null){
+    v={min:Math.floor(vals.t/60), sec:Math.round(vals.t%60)};
+  }
+  g.fields.forEach(f=>{
+    const d=document.createElement('div');
+    const l=document.createElement('label'); l.textContent=f.l;
+    const i=document.createElement('input');
+    i.type='number'; i.step='any'; i.inputMode='decimal'; i.dataset.f=f.k;
+    if(v && v[f.k]!=null) i.value=v[f.k];
+    d.appendChild(l); d.appendChild(i); ins.appendChild(d);
+  });
+  row.appendChild(ins);
+  if(g.kind!=='hyrox'){
+    const b=document.createElement('button');
+    b.type='button'; b.className='rm'; b.innerHTML='&times;'; b.title='Remove';
+    b.addEventListener('click',()=>{row.remove();renum(g);});
+    row.appendChild(b);
+  }
+  return row;
+}
+function renum(g){
+  const c=$('g_'+g.key); if(!c) return;
+  [...c.querySelectorAll('.srow')].forEach((r,i)=>{ r.querySelector('.n').textContent=i+1; });
+}
+
+function renderGroup(g,w,existing){
+  const wrap=document.createElement('div'); wrap.className='grp';
+  const h=document.createElement('div'); h.className='grp-h'; h.textContent=g.name; wrap.appendChild(h);
+  const rx=g.rx(w);
+  const sub=document.createElement('div'); sub.className='grp-rx'; sub.textContent='Target: '+rx.txt; wrap.appendChild(sub);
+  const c=document.createElement('div'); c.id='g_'+g.key; wrap.appendChild(c);
+
+  if(g.kind==='hyrox'){
+    const h2=HYROX[w];
+    let idx=0;
+    for(let rd=1; rd<=h2.r; rd++){
+      const rh=document.createElement('div'); rh.className='rnd-h'; rh.textContent='Round '+rd; c.appendChild(rh);
+      h2.st.forEach(st=>{
+        c.appendChild(mkRow(g, st.length>16?st.slice(0,15)+'…':st, existing? existing[idx]:null));
+        idx++;
+      });
+    }
+  } else {
+    const n = (existing && existing.length) ? existing.length : rx.sets;
+    for(let i=0;i<n;i++) c.appendChild(mkRow(g, String(i+1), existing? existing[i]:null));
+    const add=document.createElement('button');
+    add.type='button'; add.className='add';
+    add.textContent='+ Add '+(g.kind==='time'?'rep':'set');
+    add.addEventListener('click',()=>{
+      c.appendChild(mkRow(g,String(c.querySelectorAll('.srow').length+1),null));
+    });
+    wrap.appendChild(add);
+  }
+  return wrap;
+}
+
+async function render(){
+  const w=+wkSel.value, d=dySel.value;
+  ttlEl.textContent=DAYS[d].label; wkBadge.textContent='Week '+w;
+  groupsEl.innerHTML=''; noteEl.value=''; msgEl.textContent='';
+  renderRx();
+  let ex=null;
+  try{ const v=await window.store.get(KEY(d,w)); if(v) ex=JSON.parse(v); }catch(e){}
+  DAYS[d].groups.forEach(g=> groupsEl.appendChild(renderGroup(g,w,ex?ex[g.key]:null)));
+  if(ex){ noteEl.value=ex.note||''; msgEl.textContent='Already logged — editing'; msgEl.className='msg mut'; }
+  renderHist();
+}
+
+function collect(g){
+  const c=$('g_'+g.key); const out=[];
+  [...c.querySelectorAll('.srow')].forEach(r=>{
+    const e={}; let has=false;
+    r.querySelectorAll('input').forEach(i=>{ if(i.value!==''){ e[i.dataset.f]=parseFloat(i.value); has=true; } });
+    if(!has){ if(g.kind==='hyrox') out.push({}); return; }
+    if(g.kind==='time'||g.kind==='hyrox'){
+      const t=(e.min||0)*60+(e.sec||0);
+      out.push(t>0?{t}:{});
+    } else out.push(e);
+  });
+  return out;
+}
+
+$('save').addEventListener('click', async ()=>{
+  const w=+wkSel.value, d=dySel.value;
+  const data={note:noteEl.value||''}; let any=false;
+  DAYS[d].groups.forEach(g=>{
+    const a=collect(g); data[g.key]=a;
+    if(a.some(x=>Object.keys(x).length)) any=true;
+  });
+  if(!any){ msgEl.textContent='Log something first'; msgEl.className='msg err'; return; }
+  $('save').disabled=true; msgEl.textContent='Saving…'; msgEl.className='msg mut';
+  try{
+    await window.store.set(KEY(d,w), JSON.stringify(data));
+    msgEl.textContent='Logged ✓'; msgEl.className='msg';
+    renderHist();
+  }catch(e){
+    msgEl.textContent='Save failed: '+(e.message||'unknown'); msgEl.className='msg err';
+  }
+  $('save').disabled=false;
+});
+
+// ---------- History ----------
+function summarise(d,data,w){
+  if(d==='d1'||d==='d2'||d==='d4'){
+    const out={};
+    DAYS[d].groups.forEach(g=>{
+      const a=data[g.key]||[];
+      if(g.kind==='lift'){
+        const top=a.filter(x=>x.weight!=null);
+        out[g.name]= top.length? Math.max(...top.map(x=>x.weight))+'kg' : '—';
+      }
+      if(g.kind==='hyrox'){
+        const ts=a.filter(x=>x.t).map(x=>x.t);
+        out['Hyrox total']= ts.length? fmt(ts.reduce((p,c)=>p+c,0)) : '—';
+        const h=HYROX[w], ns=h.st.length;
+        if(ts.length){
+          const r1=a.slice(0,ns).filter(x=>x.t).map(x=>x.t);
+          out['Round 1']= r1.length? fmt(r1.reduce((p,c)=>p+c,0)) : '—';
+        } else out['Round 1']='—';
+      }
+    });
+    return out;
+  }
+  const a=(data.r400||[]).filter(x=>x.t).map(x=>x.t);
+  const avg=a.length? a.reduce((p,c)=>p+c,0)/a.length : null;
+  return {'Reps':a.length||'—','Avg 400m':avg?fmt(avg):'—','Fastest':a.length?fmt(Math.min(...a)):'—'};
+}
+function primary(d,data,w){
+  if(d==='d1') return (data.squat||[]).filter(x=>x.weight!=null).reduce((m,x)=>Math.max(m,x.weight),0)||null;
+  if(d==='d2') return (data.bench||[]).filter(x=>x.weight!=null).reduce((m,x)=>Math.max(m,x.weight),0)||null;
+  if(d==='d4') return (data.trap ||[]).filter(x=>x.weight!=null).reduce((m,x)=>Math.max(m,x.weight),0)||null;
+  const a=(data.r400||[]).filter(x=>x.t).map(x=>x.t);
+  return a.length? a.reduce((p,c)=>p+c,0)/a.length : null;
+}
+const lowerBetter = d => d==='d3';
+
+async function renderHist(){
+  const d=dySel.value;
+  histTtl.textContent=DAYS[d].label.split('—')[1].trim()+' — History';
+  histEl.innerHTML='<div class="empty">Loading…</div>';
+  try{
+    const keys=await window.store.list(`hyrox:v3:${d}:`);
+    if(!keys.length){ histEl.innerHTML='<div class="empty">Nothing logged yet for this session.</div>'; return; }
+    const rows=[];
+    for(const k of keys){
+      try{ const v=await window.store.get(k); if(v){
+        rows.push({w:parseInt(k.split('week')[1],10), data:JSON.parse(v), key:k}); } }catch(e){}
+    }
+    rows.sort((a,b)=>a.w-b.w);
+    if(!rows.length){ histEl.innerHTML='<div class="empty">Nothing logged yet.</div>'; return; }
+    const base=primary(d,rows[0].data,rows[0].w);
+    const cols=Object.keys(summarise(d,rows[rows.length-1].data,rows[rows.length-1].w));
+    let html='<table><thead><tr><th>Wk</th>'+cols.map(c=>`<th>${c}</th>`).join('')
+             +(rows.length>1?'<th>vs Wk1</th>':'')+'<th>Notes</th><th></th></tr></thead><tbody>';
+    rows.forEach(r=>{
+      const s=summarise(d,r.data,r.w);
+      let tr=`<td><strong>${r.w}</strong></td>`;
+      cols.forEach(c=> tr+=`<td>${s[c]!=null?s[c]:'—'}</td>`);
+      if(rows.length>1){
+        const p=primary(d,r.data,r.w);
+        if(r.w===rows[0].w||base==null||p==null) tr+='<td class="mut">baseline</td>';
+        else{
+          const diff=p-base, good=lowerBetter(d)?diff<0:diff>0;
+          const disp=lowerBetter(d)?fmt(Math.abs(diff)):Math.abs(diff).toFixed(1);
+          tr+=`<td class="${diff===0?'mut':(good?'up':'down')}">${diff>0?'+':'−'}${disp}</td>`;
+        }
+      }
+      tr+=`<td class="mut">${r.data.note||''}</td>`;
+      tr+=`<td class="ta"><button class="del" data-k="${r.key}">remove</button></td>`;
+      html+=`<tr>${tr}</tr>`;
+    });
+    histEl.innerHTML=html+'</tbody></table>';
+    histEl.querySelectorAll('.del').forEach(b=>{
+      b.addEventListener('click', async ()=>{
+        if(!confirm('Remove this entry?')) return;
+        await window.store.del(b.dataset.k); render();
+      });
+    });
+  }catch(e){
+    histEl.innerHTML='<div class="empty">Could not load history — '+(e.message||'try again')+'</div>';
+  }
+}
+
+$('exp').addEventListener('click', async ()=>{
+  const m=$('expMsg'), box=$('expBox');
+  m.textContent='Gathering…'; m.className='msg mut';
+  try{
+    const out={}; let n=0;
+    for(const d of Object.keys(DAYS)){
+      for(const k of await window.store.list(`hyrox:v3:${d}:`)){
+        const v=await window.store.get(k); if(v){ out[k]=v; n++; }
+      }
+    }
+    if(!n){ m.textContent='Nothing logged yet.'; m.className='msg err'; box.style.display='none'; return; }
+    box.value=JSON.stringify(out,null,2); box.style.display='block';
+    m.textContent=n+' entries ✓'; m.className='msg';
+  }catch(e){ m.textContent='Failed: '+(e.message||''); m.className='msg err'; }
+});
+
+wkSel.addEventListener('change',render);
+dySel.addEventListener('change',render);
+if(window.dbReady) render(); else document.addEventListener('dbready',render);
+</script>
+</body>
+</html>
